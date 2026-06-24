@@ -16,6 +16,12 @@ body,
   margin: 0;
 }
 
+html,
+body {
+  overflow: hidden;
+  overscroll-behavior-y: none;
+}
+
 body {
   min-height: 100vh;
   font-family: 'Nunito', 'Segoe UI', sans-serif;
@@ -46,7 +52,7 @@ body {
 }
 
 .page-wrap {
-  padding: 24px 20px 80px;
+  padding: 12px 20px 16px;
 }
 
 .surface-card {
@@ -154,9 +160,105 @@ body {
   gap: 8px;
 }
 
+.mobile-mode {
+  background: transparent;
+}
+
+.mobile-frame {
+  width: 100%;
+  max-width: 430px;
+  margin: 0 auto;
+  height: 100dvh;
+  position: relative;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  overflow: hidden;
+  background: var(--md-shell);
+  box-shadow: 0 0 0 1px rgba(13, 41, 31, 0.12), 0 24px 40px rgba(13, 41, 31, 0.16);
+}
+
+.mobile-mode .v-main {
+  padding-top: 0 !important;
+  padding-bottom: 0;
+  overflow-y: auto;
+  overscroll-behavior-y: none;
+  -webkit-overflow-scrolling: auto;
+}
+
+.mobile-topbar {
+  position: sticky !important;
+  top: 0;
+  left: 0 !important;
+  right: 0 !important;
+  width: 100% !important;
+  max-width: none;
+  transform: none;
+  z-index: 30;
+}
+
+.mobile-topbar :deep(.v-toolbar__content) {
+  padding-inline: 6px;
+}
+
+.mobile-topbar :deep(.v-btn) {
+  min-width: 40px;
+  width: 40px;
+  height: 40px;
+}
+
+.mobile-bottom-nav {
+  position: sticky !important;
+  bottom: 0;
+  left: 0 !important;
+  right: 0 !important;
+  width: 100% !important;
+  max-width: none;
+  transform: none;
+  z-index: 30;
+  border-top: 1px solid rgba(13, 41, 31, 0.15);
+}
+
+.mobile-bottom-nav :deep(.v-btn) {
+  min-width: 0;
+}
+
+.app-btn {
+  border-radius: 14px !important;
+  min-height: 44px;
+  text-transform: none;
+  font-weight: 700;
+  letter-spacing: 0;
+  padding-inline: 16px;
+  box-shadow: none !important;
+}
+
+.app-btn:hover,
+.app-btn:focus,
+.app-btn:active {
+  box-shadow: none !important;
+}
+
+.app-btn-primary {
+  background-color: var(--md-primary) !important;
+  color: #fff !important;
+}
+
+.app-btn-secondary {
+  background-color: transparent !important;
+  color: var(--md-primary) !important;
+  border: 2px solid var(--md-primary) !important;
+}
+
+.mobile-mode [class*='v-col-md-'],
+.mobile-mode [class*='v-col-lg-'],
+.mobile-mode [class*='v-col-xl-'] {
+  flex: 0 0 100% !important;
+  max-width: 100% !important;
+}
+
 @media (max-width: 959px) {
   .page-wrap {
-    padding: 16px 12px 90px;
+    padding: 8px 12px 14px;
   }
 
   .quick-grid {

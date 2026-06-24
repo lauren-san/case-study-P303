@@ -27,7 +27,7 @@ function submit() {
       density="comfortable"
       @keydown.enter="submit"
     />
-    <v-btn color="primary" prepend-icon="mdi-send" @click="submit">Send</v-btn>
+    <v-btn class="app-btn app-btn-secondary" prepend-icon="mdi-send" @click="submit">Send</v-btn>
   </div>
 </template>
 

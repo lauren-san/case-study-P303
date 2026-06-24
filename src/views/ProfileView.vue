@@ -76,7 +76,7 @@ const form = ref({
           </v-col>
         </v-row>
 
-        <v-btn color="primary" size="large" class="mt-2" prepend-icon="mdi-content-save">Save Changes</v-btn>
+        <v-btn class="mt-2 app-btn app-btn-primary" prepend-icon="mdi-content-save">Save Changes</v-btn>
       </v-card-text>
     </v-card>
   </v-container>

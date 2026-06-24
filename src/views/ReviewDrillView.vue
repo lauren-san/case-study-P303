@@ -29,9 +29,9 @@ const feedback = ref('')
 
             <div class="mb-4">
               <p class="review-label">Is the skill level categorized correctly?</p>
-              <v-btn-toggle v-model="levelMatches" mandatory rounded="pill" color="primary">
-                <v-btn value="yes">Yes</v-btn>
-                <v-btn value="no">No</v-btn>
+              <v-btn-toggle v-model="levelMatches" mandatory rounded="lg">
+                <v-btn value="yes" class="app-btn app-btn-primary">Yes</v-btn>
+                <v-btn value="no" class="app-btn app-btn-secondary">No</v-btn>
               </v-btn-toggle>
             </div>
 
@@ -46,7 +46,7 @@ const feedback = ref('')
             />
           </v-card-text>
           <v-card-actions>
-            <v-btn color="primary" prepend-icon="mdi-check-circle">Submit Review</v-btn>
+            <v-btn class="app-btn app-btn-primary" prepend-icon="mdi-check-circle">Submit Review</v-btn>
           </v-card-actions>
         </v-card>
       </v-col>
