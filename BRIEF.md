@@ -1,0 +1,2 @@
+Create a new Vue project called "case-study-P303".
+Use Vite with TypeScript and Vue Router. Then add VUetify 3. Set everything up and open the project. Say no to pinia, testing, jsx, eslint, and prettifier.
