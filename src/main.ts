@@ -1,27 +1,27 @@
 import { createApp } from 'vue'
-import { createRouter, createWebHistory } from 'vue-router'
 import { createVuetify } from 'vuetify'
 import 'vuetify/styles'
 import '@mdi/font/css/materialdesignicons.css'
-import 'vuetify/dist/vuetify.min.css'
 import { aliases, mdi } from 'vuetify/iconsets/mdi'
 
 import App from './App.vue'
-import HomeView from './views/HomeView.vue'
+import router from './router'
 import './styles/main.css'
 
-const router = createRouter({
-  history: createWebHistory(),
-  routes: [
-    {
-      path: '/',
-      name: 'home',
-      component: HomeView,
-    },
-  ],
-})
-
 const vuetify = createVuetify({
+  theme: {
+    defaultTheme: 'myDiamond',
+    themes: {
+      myDiamond: {
+        colors: {
+          primary: '#0a9b5a',
+          secondary: '#2f6fcd',
+          surface: '#f6f8f3',
+          background: '#d9d9d9',
+        },
+      },
+    },
+  },
   icons: {
     defaultSet: 'mdi',
     aliases,
