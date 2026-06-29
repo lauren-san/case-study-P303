@@ -5,10 +5,10 @@ const route = useRoute()
 
 const navItems = [
   { title: 'Home', icon: 'mdi-home-outline', to: '/' },
-  { title: 'Profile', icon: 'mdi-account-outline', to: '/profile' },
   { title: 'Video Studio', icon: 'mdi-video-outline', to: '/studio' },
   { title: 'Drill Library', icon: 'mdi-baseball-diamond-outline', to: '/drills' },
   { title: 'Share / Chat', icon: 'mdi-forum-outline', to: '/share' },
+  { title: 'Profile', icon: 'mdi-account-outline', to: '/profile' },
   { title: 'Review Drill', icon: 'mdi-star-outline', to: '/review' },
 ]
 

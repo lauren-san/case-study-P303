@@ -131,6 +131,15 @@ body {
   box-shadow: 0 12px 20px rgba(13, 41, 31, 0.2);
 }
 
+.profile-banner {
+  border-radius: 24px 24px 0 0;
+}
+
+.profile-avatar {
+  position: relative;
+  z-index: 1;
+}
+
 .stats-row {
   margin-top: 12px;
   display: grid;

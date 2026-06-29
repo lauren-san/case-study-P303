@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { profile } from '../data/mockData'
+import fieldImage from '../../Context/field.jpeg'
+import profilePicture from '../../Context/Profile-pic.jpeg'
 
 const form = ref({
   name: profile.name,
@@ -16,13 +18,25 @@ const form = ref({
 <template>
   <v-container fluid class="page-wrap">
     <v-card rounded="xl" class="surface-card">
-      <div class="diamond-header">
-        <div class="diamond-center">MyDiamond</div>
-      </div>
-      <v-avatar size="136" class="avatar-ring">
-        <v-img src="https://images.unsplash.com/photo-1601825765780-754fa98637c1?auto=format&fit=crop&w=500&q=80" alt="player profile image" />
+      <v-img
+        class="profile-banner"
+        height="184"
+        cover
+        :src="fieldImage"
+        alt="softball field"
+      />
+      <v-avatar size="136" class="avatar-ring profile-avatar">
+        <v-img :src="profilePicture" alt="profile picture" />
       </v-avatar>
       <v-card-text>
+        <div class="profile-photo-actions">
+          <div>
+            <p class="profile-photo-label">Profile picture</p>
+            <p class="subtitle">Update the photo coaches and teammates see first.</p>
+          </div>
+          <v-btn class="app-btn app-btn-secondary" prepend-icon="mdi-camera-outline">Update Photo</v-btn>
+        </div>
+
         <h1 class="page-title">{{ profile.name }}</h1>
         <p class="subtitle">{{ profile.username }}</p>
 
@@ -81,3 +95,17 @@ const form = ref({
     </v-card>
   </v-container>
 </template>
+
+<style scoped>
+.profile-photo-actions {
+  display: grid;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.profile-photo-label {
+  margin: 0;
+  font-weight: 700;
+  color: rgba(13, 41, 31, 0.88);
+}
+</style>
