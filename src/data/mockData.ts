@@ -4,7 +4,12 @@ export type Profile = {
   name: string
   username: string
   role: UserType
-  position: string
+  age: number
+  grade: string
+  school: string
+  travelTeam: string
+  primaryPosition: string
+  secondaryPosition: string
   skillLevel: 'beginner' | 'intermediate' | 'advanced' | 'elite'
   experienceYears: number
   playerConnections: number
@@ -35,7 +40,12 @@ export const profile: Profile = {
   name: 'Gina Ramirez',
   username: 'girami56',
   role: 'player',
-  position: 'short stop',
+  age: 16,
+  grade: 'Sophomore',
+  school: 'Riverside High School',
+  travelTeam: 'South Bay Storm 16U',
+  primaryPosition: 'Shortstop',
+  secondaryPosition: 'Utility',
   skillLevel: 'intermediate',
   experienceYears: 6,
   playerConnections: 18,

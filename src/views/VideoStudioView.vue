@@ -54,9 +54,9 @@ function setTool(value: Tool) {
           <v-card-title>Comparison Viewer</v-card-title>
           <v-card-text>
             <v-tabs v-model="compareMode" color="primary" align-tabs="start" density="comfortable">
-              <v-tab value="video-video">video to video</v-tab>
-              <v-tab value="video-image">video to image</v-tab>
-              <v-tab value="image-image">image to image</v-tab>
+              <v-tab value="video-video">Video to Video</v-tab>
+              <v-tab value="video-image">Video to Image</v-tab>
+              <v-tab value="image-image">Image to Image</v-tab>
             </v-tabs>
             <ComparisonViewer :compare-mode="compareMode" class="mt-4" />
           </v-card-text>
