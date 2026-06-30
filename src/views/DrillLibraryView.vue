@@ -10,6 +10,8 @@ const selectedPosition = ref('all')
 const selectedLevel = ref('all')
 const selectedFocus = ref('all')
 const showFilters = ref(false)
+const showDrillDetail = ref(false)
+const selectedDrill = ref<typeof drills[0] | null>(null)
 
 const draftPosition = ref(selectedPosition.value)
 const draftLevel = ref(selectedLevel.value)
@@ -190,12 +192,18 @@ function resetFilters() {
   draftLevel.value = 'all'
   draftFocus.value = 'all'
 }
+
+function openDrillDetail(drill: typeof drills[0]) {
+  selectedDrill.value = drill
+  showDrillDetail.value = true
+}
 </script>
 
 <template>
   <v-container fluid class="page-wrap">
     <v-card rounded="xl" class="surface-card drills-surface">
-      <v-card-text class="drills-content">
+      <v-card-text class="drills-content" :class="{ 'detail-mode': showDrillDetail }">
+        <div class="drill-list-inner" :style="showDrillDetail ? 'visibility: hidden' : ''">
         <v-text-field
           v-model="searchKeyword"
           placeholder="Enter a search keyword..."
@@ -222,6 +230,7 @@ function resetFilters() {
             v-for="pill in appliedFilterPills"
             :key="pill.key"
             size="small"
+            variant="outlined"
             class="applied-filter-pill"
             closable
             @click:close="removeAppliedFilter(pill.key)"
@@ -238,6 +247,9 @@ function resetFilters() {
               :key="`recommended-${drill.id}`"
               class="recommended-card"
               :class="{ 'search-result-card': isResultsMode }"
+              @click="openDrillDetail(drill)"
+              role="button"
+              tabindex="0"
             >
               <img
                 v-if="isResultsMode"
@@ -258,7 +270,7 @@ function resetFilters() {
                   />
                 </div>
                 <img
-                  v-if="!isSearching"
+                  v-if="!isResultsMode"
                   :src="imageForDrill(drill.id)"
                   :alt="`${drill.title} preview`"
                   class="recommended-image"
@@ -277,7 +289,14 @@ function resetFilters() {
         <section v-if="!isResultsMode" class="drill-section popular-section">
           <h3 v-if="showSectionTitles" class="drill-section-title">Popular Drills This Week</h3>
           <div class="popular-list">
-            <article v-for="drill in popularDrills" :key="`popular-${drill.id}`" class="popular-card">
+            <article
+              v-for="drill in popularDrills"
+              :key="`popular-${drill.id}`"
+              class="popular-card"
+              @click="openDrillDetail(drill)"
+              role="button"
+              tabindex="0"
+            >
               <img :src="imageForDrill(drill.id)" :alt="`${drill.title} preview`" class="popular-image" />
               <div class="popular-meta">
                 <h4 class="popular-title">{{ drill.title }}</h4>
@@ -303,6 +322,69 @@ function resetFilters() {
         <v-alert v-if="!filteredDrills.length" type="info" variant="tonal" class="mt-4">
           No drills match your current filters.
         </v-alert>
+        </div>
+
+      <div v-if="showDrillDetail" class="drill-detail-overlay">
+        <div class="drill-detail-view" v-if="selectedDrill">
+          <div class="drill-detail-header">
+            <v-btn
+              icon
+              size="small"
+              elevation="0"
+              @click="showDrillDetail = false"
+              class="back-btn"
+            >
+              <v-icon>mdi-arrow-left</v-icon>
+            </v-btn>
+            <h2 class="drill-detail-title">{{ selectedDrill.title }}</h2>
+            <div style="width: 40px"></div>
+          </div>
+
+          <div class="drill-detail-scroll">
+            <div class="drill-video-container">
+              <img
+                :src="imageForDrill(selectedDrill.id)"
+                :alt="`${selectedDrill.title} preview`"
+                class="drill-detail-image"
+              />
+            </div>
+
+            <div class="drill-detail-body">
+              <div class="drill-rating-section">
+                <v-rating
+                  :model-value="selectedDrill.rating"
+                  color="var(--md-primary)"
+                  half-increments
+                  density="compact"
+                  readonly
+                />
+                <span class="reviews-count">{{ selectedDrill.reviews }} reviews</span>
+              </div>
+
+              <div class="drill-action-buttons">
+                <v-btn class="app-btn app-btn-primary" size="small">Add to To-Do List</v-btn>
+              </div>
+
+              <div class="recommended-tags">
+                <v-chip size="x-small" class="tag-chip" variant="outlined">{{ selectedDrill.position }}</v-chip>
+                <v-chip size="x-small" class="tag-chip" variant="outlined">{{ selectedDrill.focus }}</v-chip>
+                <v-chip size="x-small" class="tag-chip" variant="outlined">{{ selectedDrill.level }}</v-chip>
+              </div>
+
+              <div class="drill-info">
+                <p class="drill-summary">{{ selectedDrill.summary }}</p>
+                
+                <h4 class="instructions-title">How to Perform This Drill</h4>
+                <ul class="instructions-list">
+                  <li v-for="(instruction, index) in selectedDrill.instructions" :key="index">
+                    {{ instruction }}
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
       </v-card-text>
     </v-card>
 
@@ -334,6 +416,13 @@ function resetFilters() {
 <style scoped>
 .drills-surface {
   overflow: hidden;
+  position: relative;
+}
+
+.drill-list-inner {
+  display: grid;
+  gap: 10px;
+  min-width: 0;
 }
 
 .drills-content {
@@ -341,6 +430,12 @@ function resetFilters() {
   gap: 10px;
   min-width: 0;
   overflow-x: hidden;
+  position: relative;
+}
+
+.drills-content.detail-mode {
+  max-height: calc(100dvh - 56px - 60px - 28px);
+  overflow: hidden;
 }
 
 .drills-search {
@@ -367,7 +462,6 @@ function resetFilters() {
 }
 
 .filter-btn {
-  border-width: 1px !important;
   border-radius: 12px !important;
   min-height: 36px;
   padding-inline: 12px;
@@ -463,6 +557,10 @@ function resetFilters() {
   margin-top: 8px;
 }
 
+.drill-detail-body .recommended-tags {
+  margin-top: 0;
+}
+
 .tag-chip {
   border-color: var(--md-primary);
   color: var(--md-primary);
@@ -529,5 +627,158 @@ function resetFilters() {
   font-size: 0.8rem;
   line-height: 1.3;
   color: rgba(13, 41, 31, 0.78);
+}
+
+.recommended-card,
+.popular-card {
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.recommended-card:hover,
+.popular-card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  transform: translateY(-2px);
+}
+
+.drill-detail-content {
+  display: grid;
+  gap: 16px;
+}
+
+.drill-video-container {
+  position: relative;
+  width: 100%;
+  background: #f0f0f0;
+  border-radius: 0;
+  overflow: hidden;
+  aspect-ratio: 16 / 9;
+  flex-shrink: 0;
+}
+
+.drill-detail-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.drill-rating-section {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.reviews-count {
+  font-size: 0.9rem;
+  color: rgba(13, 41, 31, 0.75);
+}
+
+.drill-action-buttons {
+  display: flex;
+  gap: 10px;
+}
+
+.drill-action-buttons .app-btn {
+  flex: 1;
+}
+
+.drill-info {
+  display: grid;
+  gap: 12px;
+  padding-bottom: 16px;
+}
+
+.drill-summary {
+  font-size: 0.95rem;
+  line-height: 1.5;
+  color: rgba(13, 41, 31, 0.85);
+  margin: 0;
+}
+
+.instructions-title {
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: rgba(13, 41, 31, 0.92);
+}
+
+.instructions-list {
+  margin: 8px 0 0;
+  padding-left: 20px;
+  display: grid;
+  gap: 8px;
+  list-style-type: disc;
+}
+
+.instructions-list li {
+  font-size: 0.9rem;
+  line-height: 1.4;
+  color: rgba(13, 41, 31, 0.8);
+}
+
+.drill-detail-overlay {
+  position: absolute;
+  inset: 0;
+  background: #ffffff;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+}
+
+.drill-detail-view {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+  background: #ffffff;
+  border-radius: 0;
+  overflow: hidden;
+  box-shadow: none;
+}
+
+.drill-detail-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px;
+  border-bottom: 1px solid rgba(13, 41, 31, 0.12);
+  background: #ffffff;
+  flex-shrink: 0;
+}
+
+.back-btn {
+  flex-shrink: 0;
+  width: 40px !important;
+  height: 40px !important;
+  min-width: 40px !important;
+  border-radius: 50% !important;
+  border: 1.5px solid var(--md-primary) !important;
+  color: var(--md-primary) !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+.drill-detail-title {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: rgba(13, 41, 31, 0.92);
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.drill-detail-scroll {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.drill-detail-body {
+  display: grid;
+  gap: 12px;
+  padding: 16px 16px 80px;
 }
 </style>
