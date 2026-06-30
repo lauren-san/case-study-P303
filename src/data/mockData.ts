@@ -21,6 +21,7 @@ export type Drill = {
   id: number
   title: string
   position: string
+  focus: 'hitting' | 'defense' | 'catching'
   level: 'beginner' | 'intermediate' | 'advanced' | 'elite'
   rating: number
   reviews: number
@@ -58,6 +59,7 @@ export const drills: Drill[] = [
     id: 1,
     title: 'Bunting Lanes Drill',
     position: 'softball',
+    focus: 'hitting',
     level: 'intermediate',
     rating: 4.3,
     reviews: 452,
@@ -72,6 +74,7 @@ export const drills: Drill[] = [
     id: 2,
     title: 'Rapid Transfer Grid',
     position: 'infield',
+    focus: 'defense',
     level: 'advanced',
     rating: 4.7,
     reviews: 128,
@@ -86,6 +89,7 @@ export const drills: Drill[] = [
     id: 3,
     title: 'Catcher Pop Burst',
     position: 'catcher',
+    focus: 'catching',
     level: 'elite',
     rating: 4.5,
     reviews: 91,

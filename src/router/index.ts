@@ -6,6 +6,7 @@ import VideoStudioView from '../views/VideoStudioView.vue'
 import DrillLibraryView from '../views/DrillLibraryView.vue'
 import ChatView from '../views/ChatView.vue'
 import ReviewDrillView from '../views/ReviewDrillView.vue'
+import MessageRequestsView from '../views/MessageRequestsView.vue'
 
 const router = createRouter({
   history: createWebHistory(),
@@ -15,6 +16,7 @@ const router = createRouter({
     { path: '/studio', name: 'studio', component: VideoStudioView },
     { path: '/drills', name: 'drills', component: DrillLibraryView },
     { path: '/share', name: 'share', component: ChatView },
+    { path: '/share/requests', name: 'requests', component: MessageRequestsView },
     { path: '/review', name: 'review', component: ReviewDrillView },
   ],
 })
