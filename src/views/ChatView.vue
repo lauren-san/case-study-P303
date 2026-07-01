@@ -152,6 +152,11 @@ function updateKeyboardOffset() {
   }
 
   const viewport = window.visualViewport
+  if (!viewport) {
+    keyboardOffset.value = 0
+    return
+  }
+
   const offset = window.innerHeight - viewport.height - viewport.offsetTop
   keyboardOffset.value = Math.max(0, Math.round(offset))
 }
@@ -237,8 +242,13 @@ onMounted(() => {
     return
   }
 
-  window.visualViewport.addEventListener('resize', updateKeyboardOffset)
-  window.visualViewport.addEventListener('scroll', updateKeyboardOffset)
+  const viewport = window.visualViewport
+  if (!viewport) {
+    return
+  }
+
+  viewport.addEventListener('resize', updateKeyboardOffset)
+  viewport.addEventListener('scroll', updateKeyboardOffset)
 })
 
 onBeforeUnmount(() => {
@@ -246,8 +256,13 @@ onBeforeUnmount(() => {
     return
   }
 
-  window.visualViewport.removeEventListener('resize', updateKeyboardOffset)
-  window.visualViewport.removeEventListener('scroll', updateKeyboardOffset)
+  const viewport = window.visualViewport
+  if (!viewport) {
+    return
+  }
+
+  viewport.removeEventListener('resize', updateKeyboardOffset)
+  viewport.removeEventListener('scroll', updateKeyboardOffset)
 })
 
 function sendMessage(payload: { text: string; attachments: MediaAttachment[] }) {
