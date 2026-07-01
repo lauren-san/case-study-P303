@@ -2,8 +2,9 @@
 import { computed, ref } from 'vue'
 import { drills } from '../data/mockData'
 import fieldImage from '../../Context/field.jpeg'
-import softballImage from '../../Context/softball.png'
-import profileImage from '../../Context/Profile-pic.jpeg'
+import rapidTransferImage from '../../Context/rapid_transfer.jpg'
+import buntingImage from '../../Context/bunting.jpg'
+import catchingImage from '../../Context/catching.jpg'
 
 const searchKeyword = ref('')
 const selectedPosition = ref('all')
@@ -18,9 +19,9 @@ const draftLevel = ref(selectedLevel.value)
 const draftFocus = ref(selectedFocus.value)
 
 const drillImages: Record<number, string> = {
-  1: softballImage,
-  2: fieldImage,
-  3: profileImage,
+  1: buntingImage,
+  2: rapidTransferImage,
+  3: catchingImage,
 }
 
 const positions = [
@@ -197,6 +198,22 @@ function openDrillDetail(drill: typeof drills[0]) {
   selectedDrill.value = drill
   showDrillDetail.value = true
 }
+
+function drillVideoUrl(drillId: number): string | null {
+  if (drillId === 1) {
+    return 'https://www.youtube.com/embed/CMspjnZxxMo'
+  }
+
+  if (drillId === 2) {
+    return 'https://www.youtube.com/embed/n3ov-N0aGek'
+  }
+
+  if (drillId === 3) {
+    return 'https://www.youtube.com/embed/71bn-vERTgw'
+  }
+
+  return null
+}
 </script>
 
 <template>
@@ -342,7 +359,16 @@ function openDrillDetail(drill: typeof drills[0]) {
 
           <div class="drill-detail-scroll">
             <div class="drill-video-container">
+              <iframe
+                v-if="drillVideoUrl(selectedDrill.id)"
+                :src="drillVideoUrl(selectedDrill.id) as string"
+                :title="`${selectedDrill.title} video`"
+                class="drill-detail-video"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowfullscreen
+              />
               <img
+                v-else
                 :src="imageForDrill(selectedDrill.id)"
                 :alt="`${selectedDrill.title} preview`"
                 class="drill-detail-image"
@@ -661,6 +687,12 @@ function openDrillDetail(drill: typeof drills[0]) {
   width: 100%;
   height: 100%;
   object-fit: cover;
+}
+
+.drill-detail-video {
+  width: 100%;
+  height: 100%;
+  border: 0;
 }
 
 .drill-rating-section {
