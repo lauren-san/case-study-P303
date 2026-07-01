@@ -415,7 +415,6 @@ function openDrillDetail(drill: typeof drills[0]) {
 
 <style scoped>
 .drills-surface {
-  overflow: hidden;
   position: relative;
 }
 
@@ -484,9 +483,10 @@ function openDrillDetail(drill: typeof drills[0]) {
   grid-auto-columns: minmax(250px, 84%);
   gap: 10px;
   overflow-x: auto;
-  overflow-y: hidden;
+  overflow-y: visible;
   overscroll-behavior-x: contain;
-  padding-bottom: 2px;
+  padding: 4px 4px 6px;
+  margin: -4px -4px -6px;
 }
 
 .results-strip {
@@ -584,6 +584,8 @@ function openDrillDetail(drill: typeof drills[0]) {
   gap: 10px;
   min-width: 0;
   overflow-x: hidden;
+  padding: 4px;
+  margin: -4px;
 }
 
 .popular-card {
@@ -637,8 +639,7 @@ function openDrillDetail(drill: typeof drills[0]) {
 
 .recommended-card:hover,
 .popular-card:hover {
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
 }
 
 .drill-detail-content {
