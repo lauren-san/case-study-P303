@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed } from 'vue'
 import { drills } from '../data/mockData'
+import { useDrillTodoList } from '../composables/useDrillTodoList'
 
 const quickLinks = [
   { title: 'Video Studio', to: '/studio', icon: 'mdi-video-outline', tone: 'primary' },
@@ -8,30 +9,31 @@ const quickLinks = [
   { title: 'Share and Chat', to: '/share', icon: 'mdi-forum-outline', tone: 'primary' },
 ]
 
-const savedDrillTodos = ref(
-  drills.map((drill, index) => ({
-    id: drill.id,
-    title: drill.title,
-    detail: `${drill.position} - ${drill.level}`,
-    completed: index === 0,
-  })),
-)
+const { todoItems, removeDrillFromTodoList, setDrillCompleted } = useDrillTodoList()
+
+const completedCount = computed(() => todoItems.value.filter((item) => item.completed).length)
+
+const savedDrillTodos = computed(() => {
+  return todoItems.value
+    .map((item) => {
+      const drill = drills.find((entry) => entry.id === item.id)
+      if (!drill) {
+        return null
+      }
+
+      return {
+        id: drill.id,
+        title: drill.title,
+        detail: `${drill.position} - ${drill.level}`,
+        completed: item.completed,
+      }
+    })
+    .filter((item): item is { id: number; title: string; detail: string; completed: boolean } => Boolean(item))
+})
 
 function removeSavedDrill(id: number) {
-  savedDrillTodos.value = savedDrillTodos.value.filter((item) => item.id !== id)
+  removeDrillFromTodoList(id)
 }
-
-const completedCount = computed(
-  () => savedDrillTodos.value.filter((item) => item.completed).length,
-)
-
-const progressValue = computed(() => {
-  if (!savedDrillTodos.value.length) {
-    return 0
-  }
-
-  return Math.round((completedCount.value / savedDrillTodos.value.length) * 100)
-})
 </script>
 
 <template>
@@ -68,20 +70,20 @@ const progressValue = computed(() => {
             </v-card-subtitle>
           </v-card-item>
           <v-card-text>
-            <v-progress-linear
-              :model-value="progressValue"
-              color="primary"
-              height="10"
-              rounded
-              class="mb-4"
-            />
             <div class="todo-actions">
               <v-btn to="/drills" prepend-icon="mdi-plus" class="app-btn app-btn-secondary">Add Drill</v-btn>
             </div>
-            <v-list lines="two" class="bg-transparent pa-0">
+            <v-alert v-if="!savedDrillTodos.length" type="info" variant="tonal" class="mb-4">
+              No drills in your to-do list yet.
+            </v-alert>
+            <v-list v-else lines="two" class="bg-transparent pa-0">
               <v-list-item v-for="item in savedDrillTodos" :key="item.id" class="px-0">
                 <template #prepend>
-                  <v-checkbox-btn v-model="item.completed" color="primary" />
+                  <v-checkbox-btn
+                    :model-value="item.completed"
+                    color="primary"
+                    @update:model-value="setDrillCompleted(item.id, Boolean($event))"
+                  />
                 </template>
                 <v-list-item-title :class="{ 'text-decoration-line-through': item.completed }">
                   {{ item.title }}

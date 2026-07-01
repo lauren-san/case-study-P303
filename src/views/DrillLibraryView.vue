@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import { drills } from '../data/mockData'
+import { useDrillTodoList } from '../composables/useDrillTodoList'
 import fieldImage from '../../Context/field.jpeg'
 import rapidTransferImage from '../../Context/rapid_transfer.jpg'
 import buntingImage from '../../Context/bunting.jpg'
@@ -13,6 +14,10 @@ const selectedFocus = ref('all')
 const showFilters = ref(false)
 const showDrillDetail = ref(false)
 const selectedDrill = ref<typeof drills[0] | null>(null)
+const todoFeedbackOpen = ref(false)
+const todoFeedbackText = ref('')
+
+const { isInTodoList, addDrillToTodoList } = useDrillTodoList()
 
 const draftPosition = ref(selectedPosition.value)
 const draftLevel = ref(selectedLevel.value)
@@ -197,6 +202,18 @@ function resetFilters() {
 function openDrillDetail(drill: typeof drills[0]) {
   selectedDrill.value = drill
   showDrillDetail.value = true
+}
+
+function addSelectedDrillToTodoList() {
+  if (!selectedDrill.value) {
+    return
+  }
+
+  const added = addDrillToTodoList(selectedDrill.value.id)
+  todoFeedbackText.value = added
+    ? `${selectedDrill.value.title} was added to your to-do list.`
+    : `${selectedDrill.value.title} is already on your to-do list.`
+  todoFeedbackOpen.value = true
 }
 
 function drillVideoUrl(drillId: number): string | null {
@@ -388,7 +405,14 @@ function drillVideoUrl(drillId: number): string | null {
               </div>
 
               <div class="drill-action-buttons">
-                <v-btn class="app-btn app-btn-primary" size="small">Add to To-Do List</v-btn>
+                <v-btn
+                  :class="isInTodoList(selectedDrill.id) ? 'app-btn app-btn-secondary' : 'app-btn app-btn-primary'"
+                  :prepend-icon="isInTodoList(selectedDrill.id) ? 'mdi-check' : 'mdi-plus'"
+                  size="small"
+                  @click="addSelectedDrillToTodoList"
+                >
+                  {{ isInTodoList(selectedDrill.id) ? 'On To-Do List' : 'Add to To-Do List' }}
+                </v-btn>
               </div>
 
               <div class="recommended-tags">
@@ -436,6 +460,10 @@ function drillVideoUrl(drillId: number): string | null {
         </v-card-actions>
       </v-card>
     </v-dialog>
+
+    <v-snackbar v-model="todoFeedbackOpen" color="primary" timeout="2200" location="bottom">
+      {{ todoFeedbackText }}
+    </v-snackbar>
   </v-container>
 </template>
 
