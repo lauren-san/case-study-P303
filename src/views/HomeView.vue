@@ -4,7 +4,6 @@ import { drills } from '../data/mockData'
 import { useDrillTodoList } from '../composables/useDrillTodoList'
 
 const quickLinks = [
-  { title: 'Video Studio', to: '/studio', icon: 'mdi-video-outline', tone: 'primary' },
   { title: 'Drill Library', to: '/drills', icon: 'mdi-baseball-diamond-outline', tone: 'primary' },
   { title: 'Share and Chat', to: '/share', icon: 'mdi-forum-outline', tone: 'primary' },
 ]

@@ -5,11 +5,9 @@ const route = useRoute()
 
 const navItems = [
   { title: 'Home', icon: 'mdi-home-outline', to: '/' },
-  { title: 'Video Studio', icon: 'mdi-video-outline', to: '/studio' },
   { title: 'Drill Library', icon: 'mdi-baseball-diamond-outline', to: '/drills' },
   { title: 'Share / Chat', icon: 'mdi-forum-outline', to: '/share' },
   { title: 'Profile', icon: 'mdi-account-outline', to: '/profile' },
-  { title: 'Review Drill', icon: 'mdi-star-outline', to: '/review' },
 ]
 
 </script>
@@ -19,9 +17,6 @@ const navItems = [
     <div class="mobile-frame">
     <v-app-bar flat color="surface" border="b" height="56" class="mobile-topbar">
       <v-app-bar-title class="app-title">MyDiamond</v-app-bar-title>
-      <template #append>
-        <v-btn to="/studio" icon="mdi-camcorder" color="primary" density="comfortable" />
-      </template>
     </v-app-bar>
 
     <v-main>

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 import MessageComposer, { type MediaAttachment } from '../components/chat/MessageComposer.vue'
 import { chatThreads, type ChatThread } from '../data/mockData'
 import coachImage1 from '../../Context/Coach.jpeg'
@@ -36,6 +36,17 @@ const discoverUsers = ref<DiscoverUser[]>([
   { id: 105, name: 'Elena Ruiz', role: 'player', organization: 'West Valley Gold', avatar: playerImage3 },
 ])
 
+function shuffledUserIds(ids: number[]): number[] {
+  const shuffled = [...ids]
+  for (let index = shuffled.length - 1; index > 0; index -= 1) {
+    const swapIndex = Math.floor(Math.random() * (index + 1))
+    const current = shuffled[index]
+    shuffled[index] = shuffled[swapIndex]
+    shuffled[swapIndex] = current
+  }
+  return shuffled
+}
+
 function avatarForThread(thread: ChatThread): string {
   const matchedUser = discoverUsers.value.find((user) => user.name === thread.name)
   if (matchedUser) {
@@ -47,14 +58,21 @@ function avatarForThread(thread: ChatThread): string {
   return thread.role === 'coach' ? fallbackCoachImages[thread.id % fallbackCoachImages.length] : fallbackPlayerImages[thread.id % fallbackPlayerImages.length]
 }
 
-const connectedUserIds = ref<number[]>([101, 102])
+const connectedUserIds = ref<number[]>([])
+const suggestedUserOrder = ref<number[]>(
+  shuffledUserIds(discoverUsers.value.map((user) => user.id)),
+)
 const threadList = ref<ChatThread[]>([...chatThreads])
 
 const searchTerm = ref('')
 const composeSearchTerm = ref('')
 const activeThreadId = ref<number>(threadList.value[0]?.id ?? 1)
 const showComposeDialog = ref(false)
-const showChatDialog = ref(false)
+const showChatScreen = ref(false)
+const connectFeedbackOpen = ref(false)
+const connectFeedbackText = ref('')
+const isComposerFocused = ref(false)
+const keyboardOffset = ref(0)
 
 const conversations = ref<Record<number, ChatMessage[]>>({
   1: [
@@ -89,13 +107,16 @@ const filteredThreads = computed(() => {
 
 const suggestedUsers = computed(() => {
   const term = searchTerm.value.trim().toLowerCase()
-  return discoverUsers.value
+  const orderedUsers = suggestedUserOrder.value
+    .map((id) => discoverUsers.value.find((user) => user.id === id))
+    .filter((user): user is DiscoverUser => Boolean(user))
+
+  return orderedUsers
     .filter((user) => {
-      const notConnected = !connectedUserIds.value.includes(user.id)
       const matches = !term || `${user.name} ${user.organization}`.toLowerCase().includes(term)
-      return notConnected && matches
+      return matches
     })
-    .slice(0, 6)
+    .slice(0, 3)
 })
 
 const composeSuggestedUsers = computed(() => {
@@ -114,6 +135,37 @@ const activeThread = computed(() => {
 
 const activeMessages = computed(() => conversations.value[activeThreadId.value] ?? [])
 
+const composerShellStyle = computed(() => {
+  if (!isComposerFocused.value || keyboardOffset.value <= 0) {
+    return {}
+  }
+
+  return {
+    transform: `translateY(-${keyboardOffset.value}px)`,
+  }
+})
+
+function updateKeyboardOffset() {
+  if (typeof window === 'undefined' || typeof window.visualViewport === 'undefined') {
+    keyboardOffset.value = 0
+    return
+  }
+
+  const viewport = window.visualViewport
+  const offset = window.innerHeight - viewport.height - viewport.offsetTop
+  keyboardOffset.value = Math.max(0, Math.round(offset))
+}
+
+function handleComposerFocusChange(isFocused: boolean) {
+  isComposerFocused.value = isFocused
+  if (!isFocused) {
+    keyboardOffset.value = 0
+    return
+  }
+
+  updateKeyboardOffset()
+}
+
 function connectUser(userId: number) {
   if (connectedUserIds.value.includes(userId)) {
     return
@@ -122,23 +174,36 @@ function connectUser(userId: number) {
   connectedUserIds.value.push(userId)
 }
 
+function handleConnect(userId: number) {
+  const user = discoverUsers.value.find((item) => item.id === userId)
+  if (!user) {
+    return
+  }
+
+  if (connectedUserIds.value.includes(userId)) {
+    connectFeedbackText.value = `You are already connected with ${user.name}.`
+    connectFeedbackOpen.value = true
+    return
+  }
+
+  connectUser(userId)
+  connectFeedbackText.value = `Connected with ${user.name}.`
+  connectFeedbackOpen.value = true
+}
+
 function openThread(threadId: number) {
   activeThreadId.value = threadId
   const thread = threadList.value.find((item) => item.id === threadId)
   if (thread) {
     thread.unread = 0
   }
-  showChatDialog.value = true
+  showChatScreen.value = true
 }
 
 function startChatWithUser(userId: number) {
   const user = discoverUsers.value.find((item) => item.id === userId)
   if (!user) {
     return
-  }
-
-  if (!connectedUserIds.value.includes(userId)) {
-    connectedUserIds.value.push(userId)
   }
 
   const existingThread = threadList.value.find((item) => item.name === user.name)
@@ -162,6 +227,28 @@ function startChatWithUser(userId: number) {
   openThread(nextId)
   showComposeDialog.value = false
 }
+
+function closeChatScreen() {
+  showChatScreen.value = false
+}
+
+onMounted(() => {
+  if (typeof window === 'undefined' || typeof window.visualViewport === 'undefined') {
+    return
+  }
+
+  window.visualViewport.addEventListener('resize', updateKeyboardOffset)
+  window.visualViewport.addEventListener('scroll', updateKeyboardOffset)
+})
+
+onBeforeUnmount(() => {
+  if (typeof window === 'undefined' || typeof window.visualViewport === 'undefined') {
+    return
+  }
+
+  window.visualViewport.removeEventListener('resize', updateKeyboardOffset)
+  window.visualViewport.removeEventListener('scroll', updateKeyboardOffset)
+})
 
 function sendMessage(payload: { text: string; attachments: MediaAttachment[] }) {
   const targetId = activeThreadId.value
@@ -194,6 +281,7 @@ function sendMessage(payload: { text: string; attachments: MediaAttachment[] }) 
   <v-container fluid class="page-wrap">
     <v-card rounded="xl" class="surface-card">
       <v-card-text>
+        <div v-if="!showChatScreen">
         <div class="chat-header">
           <h2 class="chat-title">Messages</h2>
           <v-btn
@@ -232,8 +320,13 @@ function sendMessage(payload: { text: string; attachments: MediaAttachment[] }) 
                 <p class="suggested-name">{{ user.name }}</p>
                 <p class="suggested-org">{{ user.organization }}</p>
               </div>
-              <v-btn class="app-btn app-btn-secondary connect-btn" size="small" @click="startChatWithUser(user.id)">
-                Connect
+              <v-btn
+                :class="connectedUserIds.includes(user.id) ? 'app-btn app-btn-primary connect-btn' : 'app-btn app-btn-secondary connect-btn'"
+                size="small"
+                :disabled="connectedUserIds.includes(user.id)"
+                @click="handleConnect(user.id)"
+              >
+                {{ connectedUserIds.includes(user.id) ? 'Connected' : 'Connect' }}
               </v-btn>
             </v-sheet>
             <p v-if="!suggestedUsers.length" class="empty-note">No suggested profiles for this search.</p>
@@ -265,6 +358,55 @@ function sendMessage(payload: { text: string; attachments: MediaAttachment[] }) 
             </v-list-item>
           </v-list>
         </section>
+        </div>
+
+        <div v-else class="chat-screen">
+          <div class="chat-screen-header">
+            <v-btn
+              icon
+              size="small"
+              elevation="0"
+              class="back-btn"
+              @click="closeChatScreen"
+            >
+              <v-icon>mdi-arrow-left</v-icon>
+            </v-btn>
+            <div class="chat-screen-title-wrap">
+              <h3 class="chat-screen-title">{{ activeThread?.name || 'Chat' }}</h3>
+              <p class="chat-screen-subtitle">{{ activeThread?.role === 'coach' ? 'Coach' : 'Player' }}</p>
+            </div>
+          </div>
+
+          <div class="chat-feed-wrap">
+            <div v-if="!activeMessages.length" class="empty-note">Start the conversation by sending a message, video, or picture.</div>
+            <div
+              v-for="message in activeMessages"
+              :key="message.id"
+              class="message-row"
+              :class="message.sender === 'you' ? 'from-you' : 'from-them'"
+            >
+              <v-sheet class="message-bubble" rounded="lg">
+                <p v-if="message.text" class="message-text">{{ message.text }}</p>
+                <div v-if="message.attachments.length" class="message-attachments">
+                  <v-chip
+                    v-for="attachment in message.attachments"
+                    :key="attachment.id"
+                    size="small"
+                    variant="outlined"
+                    :prepend-icon="attachment.type === 'video' ? 'mdi-video-outline' : 'mdi-image-outline'"
+                  >
+                    {{ attachment.name }}
+                  </v-chip>
+                </div>
+                <p class="message-time">{{ message.time }}</p>
+              </v-sheet>
+            </div>
+          </div>
+
+          <div class="chat-composer-shell" :style="composerShellStyle">
+            <MessageComposer @send="sendMessage" @focus-change="handleComposerFocusChange" class="w-100" />
+          </div>
+        </div>
       </v-card-text>
     </v-card>
 
@@ -306,40 +448,9 @@ function sendMessage(payload: { text: string; attachments: MediaAttachment[] }) 
       </v-card>
     </v-dialog>
 
-    <v-dialog v-model="showChatDialog" max-width="620">
-      <v-card rounded="lg" class="d-flex flex-column">
-        <v-card-title>{{ activeThread?.name || 'Chat' }}</v-card-title>
-        <v-card-subtitle>{{ activeThread?.role === 'coach' ? 'Coach' : 'Player' }}</v-card-subtitle>
-        <v-card-text class="chat-feed-wrap">
-          <div v-if="!activeMessages.length" class="empty-note">Start the conversation by sending a message, video, or picture.</div>
-          <div
-            v-for="message in activeMessages"
-            :key="message.id"
-            class="message-row"
-            :class="message.sender === 'you' ? 'from-you' : 'from-them'"
-          >
-            <v-sheet class="message-bubble" rounded="lg">
-              <p v-if="message.text" class="message-text">{{ message.text }}</p>
-              <div v-if="message.attachments.length" class="message-attachments">
-                <v-chip
-                  v-for="attachment in message.attachments"
-                  :key="attachment.id"
-                  size="small"
-                  variant="outlined"
-                  :prepend-icon="attachment.type === 'video' ? 'mdi-video-outline' : 'mdi-image-outline'"
-                >
-                  {{ attachment.name }}
-                </v-chip>
-              </div>
-              <p class="message-time">{{ message.time }}</p>
-            </v-sheet>
-          </div>
-        </v-card-text>
-        <v-card-actions>
-          <MessageComposer @send="sendMessage" class="w-100" />
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
+    <v-snackbar v-model="connectFeedbackOpen" color="primary" timeout="2200" location="bottom">
+      {{ connectFeedbackText }}
+    </v-snackbar>
   </v-container>
 </template>
 
@@ -473,7 +584,57 @@ function sendMessage(payload: { text: string; attachments: MediaAttachment[] }) 
   display: grid;
   gap: 10px;
   align-content: start;
-  min-height: 280px;
+  min-height: 220px;
+  flex: 1;
+  overflow-y: auto;
+}
+
+.chat-screen {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-height: 60vh;
+}
+
+.chat-screen-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid rgba(13, 41, 31, 0.12);
+}
+
+.chat-screen-title-wrap {
+  min-width: 0;
+}
+
+.chat-screen-title {
+  margin: 0;
+  font-size: 1.02rem;
+  font-weight: 700;
+}
+
+.chat-screen-subtitle {
+  margin: 2px 0 0;
+  font-size: 0.8rem;
+  color: rgba(13, 41, 31, 0.65);
+}
+
+.chat-composer-shell {
+  border-top: 1px solid rgba(13, 41, 31, 0.12);
+  padding-top: 10px;
+}
+
+.back-btn {
+  flex-shrink: 0;
+  width: 40px !important;
+  height: 40px !important;
+  min-width: 40px !important;
+  border-radius: 50% !important;
+  border: 1.5px solid var(--md-primary) !important;
+  color: var(--md-primary) !important;
+  background: transparent !important;
+  box-shadow: none !important;
 }
 
 .empty-note {

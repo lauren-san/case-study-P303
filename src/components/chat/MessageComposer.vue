@@ -9,6 +9,7 @@ export type MediaAttachment = {
 
 const emit = defineEmits<{
   send: [{ text: string; attachments: MediaAttachment[] }]
+  focusChange: [isFocused: boolean]
 }>()
 
 const message = ref('')
@@ -72,6 +73,8 @@ function submit() {
       hide-details
       placeholder="Share feedback, videos, or pictures..."
       density="comfortable"
+      @focus="emit('focusChange', true)"
+      @blur="emit('focusChange', false)"
       @keydown.enter="submit"
     />
 
