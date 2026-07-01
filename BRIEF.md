@@ -1,155 +1,116 @@
-# MyDiamond – Product Brief
+# MyDiamond - Product Brief
 
 ## Overview
-MyDiamond is a responsive web app for softball players and coaches to improve performance through video analysis, feedback, and skill development.
+MyDiamond is a mobile-first softball development app focused on drills, team communication, and player progress tracking.
 
-Users can:
-- Create player or coach profiles
-- Record and analyze form videos
-- Annotate videos (draw lines, slow motion, compare clips)
-- Share videos with coaches or peers
-- Discover drills by position and skill level
-
----
+The app supports:
+- Profile management for players and coaches
+- Drill discovery and drill detail learning flows
+- Drill to-do tracking across screens
+- Team messaging with connection workflows
+- Practice and game schedule visibility
 
 ## Design Reference
-Primary design direction and interaction patterns are based on the Figma prototype:
+Primary interaction and layout direction come from this Figma prototype:
 
 - [View Figma Prototype](https://www.figma.com/proto/wax8RxrsS4SEe2ctUopA58/DP2?t=urmDwa2PaehCfwIh-1&scaling=scale-down&content-scaling=fixed&page-id=0%3A1&node-id=86-1&starting-point-node-id=86%3A1&show-proto-sidebar=1)
 
-- Also view the screenshots of the Figma in the context folder
-
-**Usage notes:**
-- Treat this as the source of truth for layout, flows, and UI behavior
-- Use Vuetify 3 components to match structure and spacing
-- Follow responsive behavior implied in the prototype
-
----
+Usage notes:
+- Match component structure and spacing patterns from the prototype.
+- Prioritize mobile behavior and card-contained transitions.
+- Use context assets/screenshots as visual support where needed.
 
 ## Tech Stack
-- **Framework:** Vue 3
-- **UI Library:** Vuetify 3
-- **Architecture:** Component-based, mobile-first
+- Framework: Vue 3
+- Build: Vite
+- Language: TypeScript
+- Routing: Vue Router
+- UI: Vuetify 3
 
----
+## Current Product Scope
 
-## Core Features
+### 1. Home Dashboard
+- Hero section with quick action links
+- Practice and game calendar section
+- Saved drill to-do list with:
+  - checkbox completion state
+  - strike-through for checked items
+  - remove actions
+  - persistent local storage-backed state
 
-### 1. Profiles
-**User Types**
-- Player
-- Coach
-
-**Capabilities**
-- Create and edit profile
-- Add position, skill level, and experience
-- Upload profile media
-- Add connections (players or coaches)
-- Edit profile
-
----
-
-### 2. Video Capture & Upload
-- Record video or upload existing files
-- Store videos in a personal library
-
----
-
-### 3. Video Analysis Tools
-Users can:
-- Draw overlay lines and angles
-- Slow down playback
-- Step through frames
-- Compare:
-  - Video to video
-  - Video to image
-  - Image to image
-
----
-
-### 4. Sharing & Feedback
-- Share videos with specific users in a chat (coach or player)
-
----
-
-### 5. Drill Library
-- Browse drills by:
-  - Position (pitcher, catcher, infield, outfield, 1B, 2B, 3B, SS)
-  - Skill level (beginner, intermediate, advanced, elite)
+### 2. Drill Library
+- Search by keyword
+- Filtering by position, level, and focus
+- Recommended and popular drill sections
+- Drill detail opens inside the mobile card flow (not fullscreen popup)
 - Drill detail includes:
-  - Instructions
-  - Video examples
-  - Rating from other users
-- Should be able to leave a review on a drill. Includes:
-    - star rating
-    - written feedback
-    - answer the question if they think the skill level is in the correct category
+  - media area (image or embedded video)
+  - rating and review count
+  - drill tags
+  - summary and step-by-step instructions
+- Add to To-Do List behavior:
+  - confirmation feedback
+  - visual state change after added
+  - shared state reflected on Home to-do list
 
----
+### 3. Messaging (Share/Chat)
+- Suggested profiles (3 at a time)
+- Connect action with confirmation feedback
+- Connected button state after click
+- Message list and in-card thread view
+- Thread opens as a contained screen inside the mobile card (IG-like flow)
+- Composer supports text + attachments
 
-## Key Screens
-- Home 
-- Profile (Player / Coach)
-- Video Library
-- Video Player + Analysis Tools + compare
-- Drill Library
-- Drill Detail pop up
-- Share / chat
-- review drill 
+### 4. Profile
+- User profile screen and related data presentation
 
----
+### 5. Message Requests
+- Requests screen routed from chat area
 
-## Responsive Behavior
+## Navigation and Route Decisions
+- Active primary areas:
+  - Home
+  - Drill Library
+  - Share/Chat
+  - Profile
+- Removed from active navigation:
+  - Video page
+  - Review Drill page
+- Legacy route handling:
+  - `/studio` redirects to `/`
+  - `/review` redirects to `/`
 
-### Mobile
-- Stacked layout
-- Full-width video player
-- Simplified navigation
+## Data and State Behavior
+- Drill to-do list is shared across Home and Drill Library.
+- To-do list persistence is handled through local storage.
+- Connected profile state in chat is local/session behavior.
 
-### Tablet
-- Two-column layouts
-- Persistent navigation elements
+## Responsive and UX Expectations
 
-### Desktop
-- Multi-panel layout (video, tools, comments)
-- Expanded navigation
+### Mobile (Primary)
+- Card-contained screen transitions
+- Bottom navigation persistence
+- Large tap targets and compact readable density
 
----
+### Tablet/Desktop (Secondary)
+- Maintain functional parity
+- Preserve readability and spacing without breaking mobile-first patterns
 
-## Vuetify Component Guidance
-Use standard Vuetify components:
+## Accessibility and Interaction Principles
+- Clear text hierarchy and concise labels
+- High contrast for interactive controls
+- Explicit state indicators (connected, added, checked)
+- Keyboard-accessible inputs and controls where applicable
 
-- Layout: `v-container`, `v-row`, `v-col`
-- Navigation: `v-app-bar`, `v-navigation-drawer`, `v-tabs`
-- Cards: `v-card`
-- Forms: `v-text-field`, `v-select`, `v-file-input`
-- Buttons: `v-btn`
-
-**Custom components required:**
-- Video player controls
-- Annotation overlays
-- Comparison viewer
-
----
-
-## Accessibility & UX Principles
-- Use clear, simple language
-- Ensure high contrast for overlays
-- Provide large tap targets on mobile
-- Support keyboard navigation on desktop
-- Do not rely on color alone for meaning
-
----
-
-## Notes / Assumptions
-- Video processing and annotation require custom logic
-- Performance considerations for playback and editing
-- Authentication and permissions not fully defined
-
----
+## Next Candidate Enhancements
+- Backend persistence and auth for drills, connections, and chat
+- Real-time chat updates
+- Calendar CRUD and team sync integration
+- Drill review submission flow (rating + written feedback)
+- Notifications and reminders
 
 ## Open Questions
-- Real-time vs delayed feedback?
-- File size limits for uploads?
-- Role-based permissions?
-- Drill content source (static vs CMS)?
+- Should connect state persist per user account or remain session-only?
+- Should to-do completion sync across devices/accounts?
+- What is the source of truth for calendar events (static, team admin, external calendar)?
+- Should drill reviews be public, team-only, or coach-only?

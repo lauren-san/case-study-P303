@@ -8,6 +8,42 @@ const quickLinks = [
   { title: 'Share and Chat', to: '/share', icon: 'mdi-forum-outline', tone: 'primary' },
 ]
 
+type CalendarEvent = {
+  id: number
+  type: 'practice' | 'game'
+  title: string
+  dateLabel: string
+  timeLabel: string
+  location: string
+}
+
+const calendarEvents: CalendarEvent[] = [
+  {
+    id: 1,
+    type: 'practice',
+    title: 'Team Hitting Practice',
+    dateLabel: 'Tue, Jul 2',
+    timeLabel: '5:00 PM - 6:30 PM',
+    location: 'North Field Cage 2',
+  },
+  {
+    id: 2,
+    type: 'practice',
+    title: 'Infield Footwork Session',
+    dateLabel: 'Thu, Jul 4',
+    timeLabel: '4:30 PM - 5:45 PM',
+    location: 'West Diamond',
+  },
+  {
+    id: 3,
+    type: 'game',
+    title: 'Storm 16U vs Valley Heat',
+    dateLabel: 'Sat, Jul 6',
+    timeLabel: '10:00 AM First Pitch',
+    location: 'Riverside Sports Complex',
+  },
+]
+
 const { todoItems, removeDrillFromTodoList, setDrillCompleted } = useDrillTodoList()
 
 const completedCount = computed(() => todoItems.value.filter((item) => item.completed).length)
@@ -41,10 +77,10 @@ function removeSavedDrill(id: number) {
       <v-col cols="12">
         <v-card rounded="xl" class="surface-card hero-panel mb-4">
           <v-card-text>
-            <h1 class="page-title mt-4">Develop your game with focused video feedback.</h1>
+            <h1 class="page-title mt-4">Develop your game with focused drill feedback.</h1>
             <p class="page-copy">
-              Record, annotate, compare, and share your clips with coaches and teammates to improve
-              mechanics session by session.
+              Work through targeted drills, connect with coaches and teammates, and track your
+              progress session by session.
             </p>
             <div class="quick-list">
               <v-btn
@@ -58,6 +94,30 @@ function removeSavedDrill(id: number) {
                 {{ link.title }}
               </v-btn>
             </div>
+          </v-card-text>
+        </v-card>
+
+        <v-card rounded="xl" class="surface-card mb-4">
+          <v-card-item>
+            <v-card-title>Practice and Game Calendar</v-card-title>
+            <v-card-subtitle>Upcoming team schedule</v-card-subtitle>
+          </v-card-item>
+          <v-card-text>
+            <v-list lines="three" class="bg-transparent pa-0">
+              <v-list-item v-for="event in calendarEvents" :key="event.id" class="px-0 calendar-item">
+                <div class="calendar-type-row">
+                  <v-chip
+                    size="small"
+                    :class="event.type === 'practice' ? 'app-btn-secondary' : 'app-btn-primary'"
+                  >
+                    {{ event.type === 'practice' ? 'Practice' : 'Game' }}
+                  </v-chip>
+                </div>
+                <v-list-item-title>{{ event.title }}</v-list-item-title>
+                <v-list-item-subtitle>{{ event.dateLabel }} • {{ event.timeLabel }}</v-list-item-subtitle>
+                <v-list-item-subtitle class="location-subtitle">{{ event.location }}</v-list-item-subtitle>
+              </v-list-item>
+            </v-list>
           </v-card-text>
         </v-card>
 
@@ -122,5 +182,21 @@ function removeSavedDrill(id: number) {
   grid-template-columns: 1fr;
   gap: 10px;
   margin: 4px 0 14px;
+}
+
+.calendar-item {
+  border-bottom: 1px solid rgba(13, 41, 31, 0.08);
+}
+
+.calendar-item:last-child {
+  border-bottom: 0;
+}
+
+.calendar-type-row {
+  margin-bottom: 6px;
+}
+
+.location-subtitle {
+  color: rgba(13, 41, 31, 0.6);
 }
 </style>
